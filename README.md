@@ -1,8 +1,4 @@
-Here's a professional and clean **GitHub `README.md`** template for your **Lead Qualification Agent** project that books meetings via GoHighLevel (GHL) and includes a front end:
 
----
-
-````markdown
 # 🤖 Lead Qualification Agent
 
 ![Lead Qualification Agent](image.png)
