@@ -1,0 +1,1103 @@
+{
+  "name": "Lead Qualification Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "112c6bee-d7ec-44c7-85e3-04d591eb8ca1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        -360
+      ],
+      "id": "f06b1d33-72a3-426f-a24b-cf18342fcbe9",
+      "name": "Webhook",
+      "webhookId": "112c6bee-d7ec-44c7-85e3-04d591eb8ca1"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.reply }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2000,
+        -760
+      ],
+      "id": "df15d1e5-6e26-4f30-b801-a452674a0219",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "794dcf8c-62e8-4332-9c52-ee494347b531",
+              "leftValue": "={{ $json.body.user_id }}",
+              "rightValue": "={{ $json.ID }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        -360
+      ],
+      "id": "abd2681d-2f6e-48e4-9ad2-78446a7cba2f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output || '';\n\nconst safe = raw.replace(/(^|[^\\\\])\\\\k/g, '$1\\\\\\\\k');\n\nreturn [\n  {\n    json: {\n      reply: safe\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1580,
+        -760
+      ],
+      "id": "f5d7623f-4f4b-42bd-9b00-42fb10898a27",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM",
+          "mode": "list",
+          "cachedResultName": "RoboGrowth Chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $json.body.user_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -440,
+        -360
+      ],
+      "id": "683d2c3e-8d38-48a3-932a-4feff64c4c82",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "avZtFTxBgelyc70W",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "707d4d68-dd09-4082-8c01-0a77e96cef2b",
+              "name": "data ",
+              "value": "Hi, I'm Sam!\\\\kWho am i speaking with ?",
+              "type": "string"
+            },
+            {
+              "id": "ba2471e6-89c4-47f0-8c95-bf177f318ef7",
+              "name": "id ",
+              "value": "={{ $json.body.user_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        -20
+      ],
+      "id": "810394f3-ace3-42eb-ba20-57082acb709f",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const botText = item.json.bot || item.json[\"bot\"] || item.json.data || item.json[\"data \"] || \"\";\n  const userText = item.json.user || \"\";\n\n  const message = {};\n\n  if (userText.trim() !== '') {\n    message.user = userText.trim().replace(/\\\\\\\\k/g, ' ');\n  }\n\n  if (botText.trim() !== '') {\n    message.bot = botText.trim().replace(/\\\\\\\\k/g, ' ');\n  }\n\n  return {\n    json: {\n      history: [message]\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        -20
+      ],
+      "id": "b246ab5a-c8e0-4df0-a6d9-8a2e25b192c6",
+      "name": "Message"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM",
+          "mode": "list",
+          "cachedResultName": "RoboGrowth Chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "ID",
+              "lookupValue": "={{ $json.body.user_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        460,
+        -760
+      ],
+      "id": "ab85b0ae-5a33-4185-bb5b-51019a18725b",
+      "name": "Load History",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "avZtFTxBgelyc70W",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const raw = item.json.Converstaion || '';\n\n  let history = [];\n\n  try {\n    const parsed = JSON.parse(raw);\n\n    // Only keep clean entries (non-empty bot or user)\n    history = parsed.map(obj => {\n      const cleaned = {};\n      if (obj.bot && obj.bot.trim() !== '') {\n        cleaned.bot = obj.bot.trim();\n      }\n      if (obj.user && obj.user.trim() !== '') {\n        cleaned.user = obj.user.trim();\n      }\n      return Object.keys(cleaned).length > 0 ? cleaned : null;\n    }).filter(Boolean);\n  } catch (err) {\n    history = [];\n  }\n\n  return {\n    json: {\n      id: item.json.ID,\n      history\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        640,
+        -760
+      ],
+      "id": "faf3b93f-1406-41b7-a2fe-9fca1a048d27",
+      "name": "load history"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const history = item.json.history || [];\n\n  // Convert each entry to a labeled line: \"Bot: ...\" or \"User: ...\"\n  const lines = history.map(msg => {\n    if (msg.bot) return `Bot: ${msg.bot}`;\n    if (msg.user) return `User: ${msg.user}`;\n    return '';\n  }).filter(line => line !== '');\n\n  // Join all lines with line breaks\n  const historyText = lines.join('\\n');\n\n  return {\n    json: {\n      id: item.json.id,\n      historyText\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -760
+      ],
+      "id": "6caf77f8-22d8-4e9d-a5ff-29141867cfaa",
+      "name": "making history"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -200,
+        -360
+      ],
+      "id": "faac7ea9-95ca-45e3-9662-3e1325d7f605",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const raw = item.json.reply;\n\n  // Remove surrounding quotes if they exist\n  let cleaned = raw;\n  if (cleaned.startsWith('\"') && cleaned.endsWith('\"')) {\n    cleaned = cleaned.slice(1, -1);\n  }\n\n  // Unescape \\\" to \"\n  cleaned = cleaned.replace(/\\\\\"/g, '\"');\n\n  item.json.reply = cleaned;\n  return item;\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        -760
+      ],
+      "id": "d89ef7e6-a526-4d74-998b-3695f839a4fb",
+      "name": "Convert Single"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"reply\": \"Welcome back! 👋\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        520,
+        -340
+      ],
+      "id": "4e58ae04-e062-4070-87d8-8fd148e2978e",
+      "name": "welcome reply"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const botText = item.json.reply || \"\";\n\n  return {\n    json: {\n      history: {\n        user: $('validate').first().json.body.message,\n        bot: botText.replace(/\\\\\\\\k/g, '\\\\k')\n      }\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1620,
+        -540
+      ],
+      "id": "07dd259d-fe7d-49cb-93bc-73590a4edcc0",
+      "name": "Message Making"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a4ffdbdc-3c62-40f0-a000-1940fb56e50b",
+              "name": "converstaion",
+              "value": "={{ $('Load History').item.json.Converstaion }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1840,
+        -540
+      ],
+      "id": "f3ce214f-a219-4a86-b8a2-36f7612546db",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => {\n  const prev = item.json.converstaion || '';\n  const current = item.json.history || {};\n\n  // Step 1: Ensure valid JSON array from converstaion\n  let conversation = [];\n\n  try {\n    if (prev.trim().startsWith('{')) {\n      conversation = [JSON.parse(prev)];\n    } else {\n      conversation = JSON.parse(prev);\n    }\n  } catch (e) {\n    conversation = [];\n  }\n\n  // Step 2: Create new message object with user first\n  const cleaned = {};\n  if (current.user && current.user.trim() !== '') {\n    cleaned.user = current.user.trim();\n  }\n  if (current.bot && current.bot.trim() !== '') {\n    cleaned.bot = current.bot.trim();\n  }\n\n  // Step 3: Add cleaned message to conversation\n  if (Object.keys(cleaned).length > 0) {\n    conversation.push(cleaned);\n  }\n\n  // Step 4: Return updated conversation string\n  return {\n    json: {\n      converstaion: JSON.stringify(conversation)\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1640,
+        -340
+      ],
+      "id": "67c223ca-ac2f-413c-b8a4-29d6d18168fb",
+      "name": "combine history"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "60fdd07e-bebb-45a7-9ce8-322a6013cf87",
+              "leftValue": "={{ $json.body.message }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        260,
+        -480
+      ],
+      "id": "5e506ced-ae05-43eb-9552-9c735a486073",
+      "name": "validate"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"reply\": \"{{ $('Edit Fields').item.json['data '] }}\"\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        520,
+        -20
+      ],
+      "id": "2cd50783-483d-428c-8659-2409406b72fb",
+      "name": "First Reply"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2060,
+        -540
+      ],
+      "id": "af72a585-50e4-4acc-939c-17ff55aa87b8",
+      "name": "History"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this Tool when you book meeting.",
+        "method": "POST",
+        "url": "https://hook.us2.make.com/clewwjg42ilitapp5a91n753fvqpx9v4",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "user_id",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', ``, 'string') }}"
+            },
+            {
+              "name": "name",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters2_Value', ``, 'string') }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters3_Value', ``, 'string') }}"
+            },
+            {
+              "name": "phone",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters4_Value', ``, 'string') }}"
+            },
+            {
+              "name": "preferred_date",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters5_Value', ``, 'string') }}"
+            },
+            {
+              "name": "preferred_time",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters6_Value', ``, 'string') }}"
+            },
+            {
+              "name": "service",
+              "value": "Discovery Call"
+            },
+            {
+              "name": "source",
+              "value": "Chat Bot"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1060,
+        -540
+      ],
+      "id": "f6c6f840-0292-4efd-a0e2-077cc94459f2",
+      "name": "Book Meeting"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        -400
+      ],
+      "id": "aa1139cc-ad63-4b55-bce6-11795561c3eb",
+      "name": "fixing",
+      "credentials": {
+        "openAiApi": {
+          "id": "I6rsRA15Er4Tklj4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=USER_INPUT: {{ $('If').item.json.body.message }}\nHistory: {{ $json.historyText }}\nUserID:{{ $json.id }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a helpful, human-sounding SMS agent for **Robo Growth Partners (RGP)** — a company that helps local service businesses grow using AI-powered marketing tools.\n\n**Tone**: Friendly, smart, warm, like texting with a helpful friend on WhatsApp. Never robotic. Always emotionally aware.\n\n---\n\n### 💡 **Rules to Always Follow**\n\n1. **Never repeat intros.** Do not say “Hi” or “I’m \\[name]” in every message. Start naturally and directly.\n2. **No generic greetings.** Never say “Hi”, “Hey”, or “Hello” — always dive right in.\n3. **Act like a human.** Use short, varied, conversational messages (1–3 sentences). Avoid robotic or copy-paste tone.\n4. **Track conversation history.** Never repeat questions already asked. If name or business type is known, don’t ask again.\n5. **Use emotional intelligence.** If the user is frustrated, confused, or excited, match their tone. Be human, kind, calm.\n6. **Ask one thing at a time.** Don’t overload the user. Flow logically from the last message.\n7. **No pricing quotes.** Instead say: “Pricing depends on the setup we create for you — best to chat and map things out.”\n\n---\n\n### 🧠 **Conversation Guidance (with NEW Logic)**\n\n**When the user tells you what kind of business they run:**\n\n* Ask **minimum 2** and **maximum 3** follow-up questions from the qualification flow.\n* After that, guide them toward booking a meeting.\n* If the user keeps asking questions or wants to go deeper:\n  → Continue the convo for **maximum 2 more back-and-forth replies**.\n  → Then always steer the conversation to book a consultation call.\n\n---\n\n### 🧠 **Qualification Flow (ask casually):**\n\n* What kind of business do you run?\n* Are you doing any marketing right now?\n* What’s your biggest issue — not enough traffic, missed leads, slow replies?\n* What’s the best way to follow up — call or text?\n\n---\n\n### 📥 **Booking Flow Logic**\n\nIf the user is ready to book a meeting:\n\n✅ If **name, email, phone, date, and time** are already known → Use tool `{Book Meeting}` right away.\n\n🟡 If only some fields are missing, ask **just those**, one at a time in this order:\n\n1. **Email**:\n\n> “Mind dropping your email so I can send the invite?”\n\n2. **Preferred Date**:\n\n> “What day works best for a quick 15-min call?”\n\n3. **Preferred Time**:\n\n> “And what time would be easiest for you?”\n\n→ Once all info is gathered:\n**Use tool:** `{Book Meeting}`\n**Say:**\n\n> “All set — just booked your meeting! You’ll get a calendar invite shortly 👍”\n\n---\n\n### 🔁 **If They’ve Booked Before**\n\n> “Looks like we’ve got your info on file 😊 Want to book another call?”\n\nIf yes → Offer available dates/times or ask for new ones if needed.\n\n---\n\n### 🧠 **Use This When User Starts the Chat:**\n\n* “Hey — who am I texting with?” (if name not known)\n* After name: “Nice to meet you <name> — How can I help you today?”\n\n---\n\n### 📆 **Sample Booking Messages**\n\n> “Want to hop on a quick 15-min call this week? We’ll show you exactly where your business ranks and how to fix it.”\n> “Here’s the link to pick a time: \\[CALENDAR LINK]”\n> “We’ll map it out for free — just need a day + time that works for you.”\n\n---\n\n### 🛑 **If User Hesitates**\n\n> “Totally cool — it’s just a short, no-pressure call to see if we’re a fit.”\n> “You’ll even get a free Google audit — helpful either way!”\n\n---\n\n### 🔁 **Escalate to Human If:**\n\n* They ask for pricing or advanced questions\n* They're frustrated or unclear\n* They want to talk to someone directly\n\nSay:\n\n> “Let me loop in one of our consultants — you can book time here: \\[CALENDAR LINK]”\n\n=================\nOUTPUT FORMATE:\n{\n\t\"output\": \"\"\n}\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1020,
+        -760
+      ],
+      "id": "2bba21c4-1261-48f1-b196-0cab645a0d52",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        -540
+      ],
+      "id": "fc3bffc0-71d0-45dc-b12a-9d59c552cae4",
+      "name": "Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "I6rsRA15Er4Tklj4",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "outputFieldName": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Output_Field_Name', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        1180,
+        -540
+      ],
+      "id": "1bd5d16e-31ba-443c-b1da-5d71bb5405ac",
+      "name": "Date"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 1040,
+        "width": 900,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        -860
+      ],
+      "typeVersion": 1,
+      "id": "568bf142-b05b-48a0-967b-937d785a4772",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"output\": \"\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1300,
+        -540
+      ],
+      "id": "35dfd081-64a5-4ce9-bb05-021e374c898f",
+      "name": "Formating"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM",
+          "mode": "list",
+          "cachedResultName": "RoboGrowth Chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $('Edit Fields').item.json['id '] }}",
+            "Converstaion": "={{ $json.history }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Converstaion",
+              "displayName": "Converstaion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Booking",
+              "displayName": "Booking",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        960,
+        -20
+      ],
+      "id": "2b22d6af-ae33-4843-869d-4920697947d5",
+      "name": "Update History",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "avZtFTxBgelyc70W",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### Booking Qualify Lead",
+        "height": 700,
+        "width": 2000,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -860
+      ],
+      "typeVersion": 1,
+      "id": "d446ce98-8091-4774-8cb4-7eee67914583",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 320,
+        "width": 2000,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -140
+      ],
+      "typeVersion": 1,
+      "id": "4d4e3c2f-cbc7-48ea-9a09-bbc7d0997e5f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM",
+          "mode": "list",
+          "cachedResultName": "RoboGrowth Chatbot",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1e1z6M6Qv6DImFZuExlpK31lYuKvRg7c1O8zT6IJJdAM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $('validate').item.json.body.user_id }}",
+            "Converstaion": "={{ $json.converstaion }}"
+          },
+          "matchingColumns": [
+            "ID"
+          ],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Converstaion",
+              "displayName": "Converstaion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Booking",
+              "displayName": "Booking",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1860,
+        -340
+      ],
+      "id": "b3bd8164-43a5-4eac-93c5-ed1b66e23551",
+      "name": "Updates History",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "avZtFTxBgelyc70W",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# 🧠 Lead Qualification Bot\n\n### * Handles SMS-based lead qualification with natural, human-like flow (not robotic).\n### * Asks 2–3 smart questions after business type, then offers to book a 15-min call.\n### * Reuses known info (name, email, phone) to avoid repeating questions.\n### * Auto-books meetings on `GHL` when all info is collected.\n\n\n",
+        "height": 340,
+        "width": 860
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -660,
+        -800
+      ],
+      "typeVersion": 1,
+      "id": "e5838f5d-541f-41b2-af93-3574e949a97d",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "validate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Convert Single",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "First Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message": {
+      "main": [
+        [
+          {
+            "node": "Update History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load History": {
+      "main": [
+        [
+          {
+            "node": "load history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load history": {
+      "main": [
+        [
+          {
+            "node": "making history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "making history": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Single": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Message Making",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Making": {
+      "main": [
+        [
+          {
+            "node": "History",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "History",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "combine history": {
+      "main": [
+        [
+          {
+            "node": "Updates History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validate": {
+      "main": [
+        [
+          {
+            "node": "Load History",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "welcome reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "First Reply": {
+      "main": [
+        [
+          {
+            "node": "Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "History": {
+      "main": [
+        [
+          {
+            "node": "combine history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Book Meeting": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fixing": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Formating",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formating": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update History": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0ff38645-7751-46fd-b902-9a444f875a8a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d781785cc92b387d9586bcb00b682ac0a21587ecd0f470f6ad3c828f1905f9f0"
+  },
+  "id": "e4s0MnQuC58yWpQC",
+  "tags": []
+}
